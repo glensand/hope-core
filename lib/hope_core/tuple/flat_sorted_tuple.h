@@ -8,9 +8,9 @@
 
 #pragma once
 
-#include "hope/typelist/type_list.h"
-#include "hope/typelist/typelistsort.h"
-#include "hope/tuple/flat_tuple.h"
+#include "hope_core/typelist/type_list.h"
+#include "hope_core/typelist/typelistsort.h"
+#include "hope_core/tuple/flat_tuple.h"
 
 /*! \defgroup <reflection> Static reflection
     @{

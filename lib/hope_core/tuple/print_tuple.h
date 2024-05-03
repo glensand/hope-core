@@ -8,8 +8,8 @@
 
 #pragma once
 
-#include "hope/tuple/flat_tuple.h"
-#include "hope/tuple/tuple_from_struct.h"
+#include "hope_core/tuple/flat_tuple.h"
+#include "hope_core/tuple/tuple_from_struct.h"
 
 #include <iostream>
 
@@ -28,8 +28,8 @@ namespace hope{
         /**
          * Prints tuple to the given stream
          */
-        template<typename... Ts, std::size_t... VIs>
-        void print_impl(std::ostream& stream, const flat_tuple<Ts...>& tuple, std::index_sequence<VIs...>) {
+        template<typename TStream, typename... Ts, std::size_t... VIs>
+        void print_impl(TStream& stream, const flat_tuple<Ts...>& tuple, std::index_sequence<VIs...>) {
             stream << "{ ";
             ((stream << (VIs == 0 ? "" : ", ") << tuple.template get<VIs>()), ...);
             stream << " };";
@@ -41,8 +41,8 @@ namespace hope{
      * This overload of the stream operator is intended to be used in the hope namespace
      * Or might bw called via adl;
      */
-    template<typename... Ts>
-    constexpr std::ostream& operator<< (std::ostream& stream, const flat_tuple<Ts...>& tuple) {
+    template<typename TStream, typename... Ts>
+    constexpr TStream& operator<< (TStream& stream, const flat_tuple<Ts...>& tuple) {
         print_impl(stream, tuple, std::make_index_sequence<size(type_list<Ts...>{})>());
         return stream;
     }
