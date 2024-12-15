@@ -33,8 +33,19 @@ namespace hope {
             return type_holder<typename pair::Value>();
         }
 
+        template <typename Value>
+        static constexpr auto get_v() noexcept {
+            constexpr auto index = index_v<Value>();
+            static_assert(index < size(m_types));
+            using pair = NthType<index, Types...>;
+            return type_holder<typename pair::Key>();
+        }
+
         template<typename Key>
         using get_t = typename decltype(get<Key>())::Type;
+
+        template<typename Value>
+        using get_v_t = typename decltype(get_v<Value>())::Type;
     private:
 
         template <typename Key>
@@ -42,6 +53,14 @@ namespace hope {
             return find_if(m_types, [](auto pair) {
                 using pair_t = typename decltype(pair)::Type;
                 return std::is_same_v<Key, typename pair_t::Key>;
+                });
+        }
+
+        template <typename Value>
+        constexpr static std::size_t index_v() {
+            return find_if(m_types, [](auto pair) {
+                using pair_t = typename decltype(pair)::Type;
+                return std::is_same_v<Value, typename pair_t::Value>;
                 });
         }
 

@@ -35,6 +35,11 @@ namespace {
     static_assert(is_same(map_t::get<std::string_view>(), string_value{ }));
     static_assert(is_same(map_t::get<bool>(), bool_value{ }));
 
+    static_assert(is_same(map_t::get_v<int_value>(), int{ }));
+    static_assert(is_same(map_t::get_v<float_value>(), float{ }));
+    static_assert(is_same(map_t::get_v<string_value>(), std::string_view{ }));
+    static_assert(is_same(map_t::get_v<bool_value>(),bool{ }));
+
     struct simple_struct final{
         const std::string v1{"TestString"};
     };
