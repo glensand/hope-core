@@ -190,8 +190,13 @@ namespace hope {
             * \param tuple2 second tuple the function to be applied to
             * \param f functional object to be sequentially applied to each field of tuple
             */
-            template<typename F>
-            constexpr void for_each(flat_tuple &tuple2, F &&f) {
+            template<typename T, typename F>
+            constexpr void for_each(T&& tuple2, F&& f) {
+                (f(get<Is>(), tuple2.template get<Is>()), ...);
+            }
+
+            template<typename T, typename F>
+            constexpr void for_each(T&& tuple2, F&& f) const {
                 (f(get<Is>(), tuple2.template get<Is>()), ...);
             }
 
@@ -335,10 +340,13 @@ namespace hope {
      * @param tuple2 Same as tuple1, but values of this tuple will be provided to the desired function as second arg.
      * @param f The instance of the function to be called
      */
-    template<typename Tuple, typename F>
-    constexpr std::enable_if_t<std::is_base_of_v<detail::tuple_tag, std::decay_t<Tuple>>>
-    for_each(Tuple &&tuple1, Tuple &&tuple2, F &&f) {
-        tuple1.for_each(std::forward<Tuple>(tuple2), std::forward<F>(f));
+    template<typename T1, typename T2, typename F>
+    constexpr std::enable_if_t<
+        std::is_base_of_v<detail::tuple_tag, std::decay_t<T1>> &&
+        std::is_base_of_v<detail::tuple_tag, std::decay_t<T2>>
+	>
+    for_each(T1&& tuple1, T2&& tuple2, F &&f) {
+        tuple1.for_each(std::forward<T2>(tuple2), std::forward<F>(f));
     }
 }
 

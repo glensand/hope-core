@@ -12,6 +12,7 @@
 #include "hope_core/tuple/tuple_from_struct.h"
 #include "hope_core/tuple/tuple_from_struct_unsafe.h"
 #include "hope_core/tuple/tuple_utils.h"
+#include "hope_core/type_traits/soa.h"
 
 namespace {
 
@@ -247,4 +248,70 @@ TEST(TupleTest, StructureFieldValueChange){
     auto&& t = hope::make_flat_tuple(recursive_structure{}, 1, false);
     t.get<recursive_structure>().value = 1000;
     ASSERT_TRUE(t.get<recursive_structure>().value == 1000);
+}
+
+TEST(TupleTest, SOA_TO_AOS) {
+    struct out final {
+        bool b;
+        int i;
+    };
+    struct in final {
+        std::vector<bool> b;
+        std::vector<int> i;
+    };
+    in input;
+    std::vector<out> output;
+    for (auto i = 0; i < 100; ++i) {
+        input.i.push_back(i);
+        input.b.push_back(true);
+    }
+    output.resize(input.i.size());
+    hope::aos(input, output.data(), output.size());
+    for (auto i = 0; i < 100; ++i) {
+        ASSERT_TRUE(output[i].i == input.i[i]);
+        ASSERT_TRUE(output[i].b == input.b[i]);
+    }
+}
+
+TEST(TupleTest, AOS_TO_SOA) {
+    struct in final {
+	    bool b;
+        int i;
+    };
+
+    struct out final {
+	    std::vector<bool> b;
+	    std::vector<int> i;
+    };
+    std::vector<in> input;
+    out output;
+    input.reserve(100);
+    for (auto i = 0; i < 100; ++i) {
+	    input.push_back(in{ true, i });
+    }
+    output.b.resize(input.size());
+    output.i.resize(input.size());
+    hope::soa(input.data(), output, input.size());
+    for (auto i = 0; i < 100; ++i) {
+        ASSERT_TRUE(input[i].i == output.i[i]);
+        ASSERT_TRUE(input[i].b == output.b[i]);
+    }
+}
+
+TEST(TupleTest, AOS_TO_TOA) {
+    struct in final {
+        bool b;
+        int i;
+    };
+
+    std::vector<in> input;
+    input.reserve(100);
+    for (auto i = 0; i < 100; ++i) {
+        input.push_back(in{ true, i });
+    }
+    const auto& out = hope::toa(input.data(), input.size());
+    for (auto i = 0; i < 100; ++i) {
+        ASSERT_TRUE(input[i].i == out.get<1>()[i]);
+        ASSERT_TRUE(input[i].b == out.get<0>()[i]);
+    }
 }
